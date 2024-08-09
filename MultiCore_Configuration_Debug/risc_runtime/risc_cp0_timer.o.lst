@@ -1,0 +1,577 @@
+   1              		.section .mdebug.abi32
+   2              		.previous
+   3              		.gnu_attribute 4, 1
+   4              		.text
+   5              	$Ltext0:
+   6              		.cfi_sections	.debug_frame
+   7              	
+   8              		.comm	startmsec,4,4
+   9              	
+  10              		.comm	finimsec,4,4
+  11              		.align	2
+  12              		.globl	starttime
+  13              	$LFB0 = .
+  14              		.file 1 "../risc_runtime/risc_cp0_timer.c"
+   1:../risc_runtime/risc_cp0_timer.c **** // ***************** simple_time.ñ ***********************************
+   2:../risc_runtime/risc_cp0_timer.c **** //                 Risc-Dsp runtime library
+   3:../risc_runtime/risc_cp0_timer.c **** //
+   4:../risc_runtime/risc_cp0_timer.c **** // This file implements interface to system time access
+   5:../risc_runtime/risc_cp0_timer.c **** //
+   6:../risc_runtime/risc_cp0_timer.c **** // (c) multicore.ru
+   7:../risc_runtime/risc_cp0_timer.c **** //
+   8:../risc_runtime/risc_cp0_timer.c **** // *******************************************************************
+   9:../risc_runtime/risc_cp0_timer.c **** #include "system.h"
+  10:../risc_runtime/risc_cp0_timer.c **** #include "risc_cp0_timer.h"
+  11:../risc_runtime/risc_cp0_timer.c **** #include "cpu.h"
+  12:../risc_runtime/risc_cp0_timer.c **** #include "risc_interrupt.h"
+  13:../risc_runtime/risc_cp0_timer.c **** 
+  14:../risc_runtime/risc_cp0_timer.c **** //
+  15:../risc_runtime/risc_cp0_timer.c **** // macro resets register with clock counter
+  16:../risc_runtime/risc_cp0_timer.c **** //
+  17:../risc_runtime/risc_cp0_timer.c **** #define ZERO_COUNT_REG mips_write_c0_register (9,0)
+  18:../risc_runtime/risc_cp0_timer.c **** 
+  19:../risc_runtime/risc_cp0_timer.c **** //
+  20:../risc_runtime/risc_cp0_timer.c **** // macro defines time as clock counter
+  21:../risc_runtime/risc_cp0_timer.c **** //
+  22:../risc_runtime/risc_cp0_timer.c **** #define	clock()		mips_read_c0_register(9)// get processor cycle count, the counter increments every
+  23:../risc_runtime/risc_cp0_timer.c **** 
+  24:../risc_runtime/risc_cp0_timer.c **** //
+  25:../risc_runtime/risc_cp0_timer.c **** // macro defines current time
+  26:../risc_runtime/risc_cp0_timer.c **** //
+  27:../risc_runtime/risc_cp0_timer.c **** #define GETMYTIME(_t) (*_t=clock())
+  28:../risc_runtime/risc_cp0_timer.c **** 
+  29:../risc_runtime/risc_cp0_timer.c **** //
+  30:../risc_runtime/risc_cp0_timer.c **** // macro defines time difference
+  31:../risc_runtime/risc_cp0_timer.c **** //
+  32:../risc_runtime/risc_cp0_timer.c **** #define MYTIMEDIFF(fin,ini) ((fin)-(ini))
+  33:../risc_runtime/risc_cp0_timer.c **** 
+  34:../risc_runtime/risc_cp0_timer.c **** 
+  35:../risc_runtime/risc_cp0_timer.c **** unsigned long startmsec, finimsec;
+  36:../risc_runtime/risc_cp0_timer.c **** 
+  37:../risc_runtime/risc_cp0_timer.c **** //
+  38:../risc_runtime/risc_cp0_timer.c **** // @name: starttime
+  39:../risc_runtime/risc_cp0_timer.c **** // @description: Initialize timer
+  40:../risc_runtime/risc_cp0_timer.c **** //
+  41:../risc_runtime/risc_cp0_timer.c **** void starttime(void)
+  42:../risc_runtime/risc_cp0_timer.c **** {
+  15              		.loc 1 42 0
+  16              		.cfi_startproc
+  17              		.set	nomips16
+  18              		.ent	starttime
+  20              	starttime:
+  21              		.frame	$fp,16,$31		# vars= 8, regs= 1/0, args= 0, gp= 0
+  22              		.mask	0x40000000,-4
+  23              		.fmask	0x00000000,0
+  24 0000 F0FFBD27 		addiu	$sp,$sp,-16
+  25              	$LCFI0 = .
+  26              		.cfi_def_cfa_offset 16
+  27 0004 0C00BEAF 		sw	$fp,12($sp)
+  28              		.cfi_offset 30, -4
+  29 0008 25F0A003 		move	$fp,$sp
+  30              	$LCFI1 = .
+  31              		.cfi_def_cfa_register 30
+  43:../risc_runtime/risc_cp0_timer.c ****   ZERO_COUNT_REG;
+  32              		.loc 1 43 0
+  33 000c 25100000 		move	$2,$0
+  34              	 #APP
+  35              	 # 43 "../risc_runtime/risc_cp0_timer.c" 1
+  36 0010 00488240 		mtc0	$2, $9 
+  37 0014 00000000 		nop 
+  38 0018 00000000 		nop 
+  39 001c 00000000 		nop
+  40              	 # 0 "" 2
+  41              	 #NO_APP
+  42              	$LBB2 = .
+  44:../risc_runtime/risc_cp0_timer.c ****   GETMYTIME(&startmsec);
+  43              		.loc 1 44 0
+  44              	 #APP
+  45              	 # 44 "../risc_runtime/risc_cp0_timer.c" 1
+  46 0020 00480240 		mfc0	$2, $9
+  47              	 # 0 "" 2
+  48              	 #NO_APP
+  49 0024 0000C2AF 		sw	$2,0($fp)
+  49      00000000 
+  50 002c 0000C28F 		lw	$2,0($fp)
+  51              		#nop
+  52 0030 00000000 	$LBE2 = .
+  53 0034 25184000 		move	$3,$2
+  54 0038 0000023C 		lui	$2,%hi(startmsec)
+  55 003c 000043AC 		sw	$3,%lo(startmsec)($2)
+  45:../risc_runtime/risc_cp0_timer.c **** }
+  56              		.loc 1 45 0
+  57 0040 25E8C003 		move	$sp,$fp
+  58              	$LCFI2 = .
+  59              		.cfi_def_cfa_register 29
+  60 0044 0C00BE8F 		lw	$fp,12($sp)
+  61 0048 1000BD27 		addiu	$sp,$sp,16
+  62              	$LCFI3 = .
+  63              		.cfi_restore 30
+  64              		.cfi_def_cfa_offset 0
+  65 004c 0800E003 		j	$31
+  65      00000000 
+  66              		.end	starttime
+  67              		.cfi_endproc
+  68              	$LFE0:
+  70              		.align	2
+  71              		.globl	stoptime
+  72              	$LFB1 = .
+  46:../risc_runtime/risc_cp0_timer.c **** 
+  47:../risc_runtime/risc_cp0_timer.c **** //
+  48:../risc_runtime/risc_cp0_timer.c **** // @name: stoptime
+  49:../risc_runtime/risc_cp0_timer.c **** // @description: Breaks timer
+  50:../risc_runtime/risc_cp0_timer.c **** //
+  51:../risc_runtime/risc_cp0_timer.c **** void stoptime(void)
+  52:../risc_runtime/risc_cp0_timer.c **** {
+  73              		.loc 1 52 0
+  74              		.cfi_startproc
+  75              		.set	nomips16
+  76              		.ent	stoptime
+  78              	stoptime:
+  79              		.frame	$fp,16,$31		# vars= 8, regs= 1/0, args= 0, gp= 0
+  80              		.mask	0x40000000,-4
+  81              		.fmask	0x00000000,0
+  82 0054 F0FFBD27 		addiu	$sp,$sp,-16
+  83              	$LCFI4 = .
+  84              		.cfi_def_cfa_offset 16
+  85 0058 0C00BEAF 		sw	$fp,12($sp)
+  86              		.cfi_offset 30, -4
+  87 005c 25F0A003 		move	$fp,$sp
+  88              	$LCFI5 = .
+  89              		.cfi_def_cfa_register 30
+  90              	$LBB3 = .
+  53:../risc_runtime/risc_cp0_timer.c ****   GETMYTIME(&finimsec);
+  91              		.loc 1 53 0
+  92              	 #APP
+  93              	 # 53 "../risc_runtime/risc_cp0_timer.c" 1
+  94 0060 00480240 		mfc0	$2, $9
+  95              	 # 0 "" 2
+  96              	 #NO_APP
+  97 0064 0000C2AF 		sw	$2,0($fp)
+  97      00000000 
+  98 006c 0000C28F 		lw	$2,0($fp)
+  99              		#nop
+ 100 0070 00000000 	$LBE3 = .
+ 101 0074 25184000 		move	$3,$2
+ 102 0078 0000023C 		lui	$2,%hi(finimsec)
+ 103 007c 000043AC 		sw	$3,%lo(finimsec)($2)
+  54:../risc_runtime/risc_cp0_timer.c **** }
+ 104              		.loc 1 54 0
+ 105 0080 25E8C003 		move	$sp,$fp
+ 106              	$LCFI6 = .
+ 107              		.cfi_def_cfa_register 29
+ 108 0084 0C00BE8F 		lw	$fp,12($sp)
+ 109 0088 1000BD27 		addiu	$sp,$sp,16
+ 110              	$LCFI7 = .
+ 111              		.cfi_restore 30
+ 112              		.cfi_def_cfa_offset 0
+ 113 008c 0800E003 		j	$31
+ 113      00000000 
+ 114              		.end	stoptime
+ 115              		.cfi_endproc
+ 116              	$LFE1:
+ 118              		.align	2
+ 119              		.globl	gettime
+ 120              	$LFB2 = .
+  55:../risc_runtime/risc_cp0_timer.c **** 
+  56:../risc_runtime/risc_cp0_timer.c **** //
+  57:../risc_runtime/risc_cp0_timer.c **** // @name: gettime
+  58:../risc_runtime/risc_cp0_timer.c **** // @description: Receives time between initialization and breaking timer
+  59:../risc_runtime/risc_cp0_timer.c **** // @return: unsigned long - time value between init and stop
+  60:../risc_runtime/risc_cp0_timer.c **** //
+  61:../risc_runtime/risc_cp0_timer.c **** unsigned long  gettime(void)
+  62:../risc_runtime/risc_cp0_timer.c **** {
+ 121              		.loc 1 62 0
+ 122              		.cfi_startproc
+ 123              		.set	nomips16
+ 124              		.ent	gettime
+ 126              	gettime:
+ 127              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 128              		.mask	0x40000000,-4
+ 129              		.fmask	0x00000000,0
+ 130              		.set	noreorder
+ 131              		.set	nomacro
+ 132 0094 F8FFBD27 		addiu	$sp,$sp,-8
+ 133              	$LCFI8 = .
+ 134              		.cfi_def_cfa_offset 8
+ 135 0098 0400BEAF 		sw	$fp,4($sp)
+ 136              		.cfi_offset 30, -4
+ 137 009c 25F0A003 		move	$fp,$sp
+ 138              	$LCFI9 = .
+ 139              		.cfi_def_cfa_register 30
+  63:../risc_runtime/risc_cp0_timer.c ****    return finimsec - startmsec;
+ 140              		.loc 1 63 0
+ 141 00a0 0000023C 		lui	$2,%hi(finimsec)
+ 142 00a4 0000438C 		lw	$3,%lo(finimsec)($2)
+ 143 00a8 0000023C 		lui	$2,%hi(startmsec)
+ 144 00ac 0000428C 		lw	$2,%lo(startmsec)($2)
+ 145 00b0 00000000 		nop
+ 146 00b4 23106200 		subu	$2,$3,$2
+  64:../risc_runtime/risc_cp0_timer.c **** }
+ 147              		.loc 1 64 0
+ 148 00b8 25E8C003 		move	$sp,$fp
+ 149              	$LCFI10 = .
+ 150              		.cfi_def_cfa_register 29
+ 151 00bc 0400BE8F 		lw	$fp,4($sp)
+ 152 00c0 0800BD27 		addiu	$sp,$sp,8
+ 153              	$LCFI11 = .
+ 154              		.cfi_restore 30
+ 155              		.cfi_def_cfa_offset 0
+ 156 00c4 0800E003 		j	$31
+ 157 00c8 00000000 		nop
+ 158              	
+ 159              		.set	macro
+ 160              		.set	reorder
+ 161              		.end	gettime
+ 162              		.cfi_endproc
+ 163              	$LFE2:
+ 165              		.align	2
+ 166              		.globl	__clock
+ 167              	$LFB3 = .
+  65:../risc_runtime/risc_cp0_timer.c **** 
+  66:../risc_runtime/risc_cp0_timer.c **** //
+  67:../risc_runtime/risc_cp0_timer.c **** // @name: __clock
+  68:../risc_runtime/risc_cp0_timer.c **** // @description: Breaks timer and receives time after initialization
+  69:../risc_runtime/risc_cp0_timer.c **** // 			 Function may be called some times without repeat of starttime()
+  70:../risc_runtime/risc_cp0_timer.c **** // @return: unsigned long - time value after init
+  71:../risc_runtime/risc_cp0_timer.c **** //
+  72:../risc_runtime/risc_cp0_timer.c **** unsigned long __clock()
+  73:../risc_runtime/risc_cp0_timer.c **** {
+ 168              		.loc 1 73 0
+ 169              		.cfi_startproc
+ 170              		.set	nomips16
+ 171              		.ent	__clock
+ 173              	__clock:
+ 174              		.frame	$fp,24,$31		# vars= 0, regs= 2/0, args= 16, gp= 0
+ 175              		.mask	0xc0000000,-4
+ 176              		.fmask	0x00000000,0
+ 177              		.set	noreorder
+ 178              		.set	nomacro
+ 179 00cc E8FFBD27 		addiu	$sp,$sp,-24
+ 180              	$LCFI12 = .
+ 181              		.cfi_def_cfa_offset 24
+ 182 00d0 1400BFAF 		sw	$31,20($sp)
+ 183 00d4 1000BEAF 		sw	$fp,16($sp)
+ 184              		.cfi_offset 31, -4
+ 185              		.cfi_offset 30, -8
+ 186 00d8 25F0A003 		move	$fp,$sp
+ 187              	$LCFI13 = .
+ 188              		.cfi_def_cfa_register 30
+  74:../risc_runtime/risc_cp0_timer.c **** 	stoptime();
+ 189              		.loc 1 74 0
+ 190 00dc 0000000C 		jal	stoptime
+ 191 00e0 00000000 		nop
+ 192              	
+  75:../risc_runtime/risc_cp0_timer.c **** 	return gettime();
+ 193              		.loc 1 75 0
+ 194 00e4 0000000C 		jal	gettime
+ 195 00e8 00000000 		nop
+ 196              	
+  76:../risc_runtime/risc_cp0_timer.c **** }
+ 197              		.loc 1 76 0
+ 198 00ec 25E8C003 		move	$sp,$fp
+ 199              	$LCFI14 = .
+ 200              		.cfi_def_cfa_register 29
+ 201 00f0 1400BF8F 		lw	$31,20($sp)
+ 202 00f4 1000BE8F 		lw	$fp,16($sp)
+ 203 00f8 1800BD27 		addiu	$sp,$sp,24
+ 204              	$LCFI15 = .
+ 205              		.cfi_restore 30
+ 206              		.cfi_restore 31
+ 207              		.cfi_def_cfa_offset 0
+ 208 00fc 0800E003 		j	$31
+ 209 0100 00000000 		nop
+ 210              	
+ 211              		.set	macro
+ 212              		.set	reorder
+ 213              		.end	__clock
+ 214              		.cfi_endproc
+ 215              	$LFE3:
+ 217              		.globl	_risc_cp0_clk_counter
+ 218              		.section	.bss,"aw",@nobits
+ 219              		.align	2
+ 222              	_risc_cp0_clk_counter:
+ 223 0000 00000000 		.space	4
+ 224              		.text
+ 225              		.align	2
+ 226              		.globl	risc_cp0_tics_start
+ 227              	$LFB4 = .
+  77:../risc_runtime/risc_cp0_timer.c **** 
+  78:../risc_runtime/risc_cp0_timer.c **** 
+  79:../risc_runtime/risc_cp0_timer.c **** unsigned int _risc_cp0_clk_counter = 0;
+  80:../risc_runtime/risc_cp0_timer.c **** 
+  81:../risc_runtime/risc_cp0_timer.c **** void risc_cp0_tics_start()
+  82:../risc_runtime/risc_cp0_timer.c **** {
+ 228              		.loc 1 82 0
+ 229              		.cfi_startproc
+ 230              		.set	nomips16
+ 231              		.ent	risc_cp0_tics_start
+ 233              	risc_cp0_tics_start:
+ 234              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 235              		.mask	0x40000000,-4
+ 236              		.fmask	0x00000000,0
+ 237 0104 F8FFBD27 		addiu	$sp,$sp,-8
+ 238              	$LCFI16 = .
+ 239              		.cfi_def_cfa_offset 8
+ 240 0108 0400BEAF 		sw	$fp,4($sp)
+ 241              		.cfi_offset 30, -4
+ 242 010c 25F0A003 		move	$fp,$sp
+ 243              	$LCFI17 = .
+ 244              		.cfi_def_cfa_register 30
+  83:../risc_runtime/risc_cp0_timer.c ****   asm volatile ("mfc0 %0, $9" :"=r"(_risc_cp0_clk_counter));
+ 245              		.loc 1 83 0
+ 246              	 #APP
+ 247              	 # 83 "../risc_runtime/risc_cp0_timer.c" 1
+ 248 0110 00480340 		mfc0 $3, $9
+ 249              	 # 0 "" 2
+ 250              	 #NO_APP
+ 251 0114 0000023C 		lui	$2,%hi(_risc_cp0_clk_counter)
+ 252 0118 000043AC 		sw	$3,%lo(_risc_cp0_clk_counter)($2)
+  84:../risc_runtime/risc_cp0_timer.c **** }
+ 253              		.loc 1 84 0
+ 254 011c 25E8C003 		move	$sp,$fp
+ 255              	$LCFI18 = .
+ 256              		.cfi_def_cfa_register 29
+ 257 0120 0400BE8F 		lw	$fp,4($sp)
+ 258 0124 0800BD27 		addiu	$sp,$sp,8
+ 259              	$LCFI19 = .
+ 260              		.cfi_restore 30
+ 261              		.cfi_def_cfa_offset 0
+ 262 0128 0800E003 		j	$31
+ 262      00000000 
+ 263              		.end	risc_cp0_tics_start
+ 264              		.cfi_endproc
+ 265              	$LFE4:
+ 267              		.align	2
+ 268              		.globl	risc_cp0_tics_get
+ 269              	$LFB5 = .
+  85:../risc_runtime/risc_cp0_timer.c **** 
+  86:../risc_runtime/risc_cp0_timer.c **** unsigned int risc_cp0_tics_get()
+  87:../risc_runtime/risc_cp0_timer.c **** {
+ 270              		.loc 1 87 0
+ 271              		.cfi_startproc
+ 272              		.set	nomips16
+ 273              		.ent	risc_cp0_tics_get
+ 275              	risc_cp0_tics_get:
+ 276              		.frame	$fp,16,$31		# vars= 8, regs= 1/0, args= 0, gp= 0
+ 277              		.mask	0x40000000,-4
+ 278              		.fmask	0x00000000,0
+ 279 0130 F0FFBD27 		addiu	$sp,$sp,-16
+ 280              	$LCFI20 = .
+ 281              		.cfi_def_cfa_offset 16
+ 282 0134 0C00BEAF 		sw	$fp,12($sp)
+ 283              		.cfi_offset 30, -4
+ 284 0138 25F0A003 		move	$fp,$sp
+ 285              	$LCFI21 = .
+ 286              		.cfi_def_cfa_register 30
+  88:../risc_runtime/risc_cp0_timer.c ****   unsigned int Count= 0;
+ 287              		.loc 1 88 0
+ 288 013c 0400C0AF 		sw	$0,4($fp)
+  89:../risc_runtime/risc_cp0_timer.c ****   asm volatile ("mfc0 %0, $9" :"=r"(Count));
+ 289              		.loc 1 89 0
+ 290              	 #APP
+ 291              	 # 89 "../risc_runtime/risc_cp0_timer.c" 1
+ 292 0140 00480240 		mfc0 $2, $9
+ 293              	 # 0 "" 2
+ 294              	 #NO_APP
+ 295 0144 0400C2AF 		sw	$2,4($fp)
+  90:../risc_runtime/risc_cp0_timer.c ****   unsigned int clk = 0;
+ 296              		.loc 1 90 0
+ 297 0148 0000C0AF 		sw	$0,0($fp)
+  91:../risc_runtime/risc_cp0_timer.c ****   if (Count >= _risc_cp0_clk_counter)
+ 298              		.loc 1 91 0
+ 299 014c 0000023C 		lui	$2,%hi(_risc_cp0_clk_counter)
+ 300 0150 0000428C 		lw	$2,%lo(_risc_cp0_clk_counter)($2)
+ 301 0154 0400C38F 		lw	$3,4($fp)
+ 302 0158 00000000 		#nop
+ 303 015c 2B106200 		sltu	$2,$3,$2
+ 304 0160 09004014 		bne	$2,$0,$L9
+ 304      00000000 
+  92:../risc_runtime/risc_cp0_timer.c ****   {
+  93:../risc_runtime/risc_cp0_timer.c ****     clk = Count - _risc_cp0_clk_counter;
+ 305              		.loc 1 93 0
+ 306 0168 0000023C 		lui	$2,%hi(_risc_cp0_clk_counter)
+ 307 016c 0000428C 		lw	$2,%lo(_risc_cp0_clk_counter)($2)
+ 308 0170 0400C38F 		lw	$3,4($fp)
+ 309 0174 00000000 		#nop
+ 310 0178 23106200 		subu	$2,$3,$2
+ 311 017c 0000C2AF 		sw	$2,0($fp)
+ 312 0180 6A000008 		j	$L10
+ 312      00000000 
+ 313              	$L9:
+  94:../risc_runtime/risc_cp0_timer.c ****   }
+  95:../risc_runtime/risc_cp0_timer.c ****   else clk = 0xffffffff - _risc_cp0_clk_counter + Count;
+ 314              		.loc 1 95 0
+ 315 0188 0000023C 		lui	$2,%hi(_risc_cp0_clk_counter)
+ 316 018c 0000428C 		lw	$2,%lo(_risc_cp0_clk_counter)($2)
+ 317 0190 0400C38F 		lw	$3,4($fp)
+ 318 0194 00000000 		#nop
+ 319 0198 23106200 		subu	$2,$3,$2
+ 320 019c FFFF4224 		addiu	$2,$2,-1
+ 321 01a0 0000C2AF 		sw	$2,0($fp)
+ 322              	$L10:
+  96:../risc_runtime/risc_cp0_timer.c ****   return clk;
+ 323 01a4 00000000 		.loc 1 96 0
+ 324 01a8 0000C28F 		lw	$2,0($fp)
+  97:../risc_runtime/risc_cp0_timer.c **** }
+ 325              		.loc 1 97 0
+ 326 01ac 25E8C003 		move	$sp,$fp
+ 327              	$LCFI22 = .
+ 328              		.cfi_def_cfa_register 29
+ 329 01b0 0C00BE8F 		lw	$fp,12($sp)
+ 330 01b4 1000BD27 		addiu	$sp,$sp,16
+ 331              	$LCFI23 = .
+ 332              		.cfi_restore 30
+ 333              		.cfi_def_cfa_offset 0
+ 334 01b8 0800E003 		j	$31
+ 334      00000000 
+ 335              		.end	risc_cp0_tics_get
+ 336              		.cfi_endproc
+ 337              	$LFE5:
+ 339              		.align	2
+ 340              		.globl	risc_cp0_ms_get
+ 341              	$LFB6 = .
+  98:../risc_runtime/risc_cp0_timer.c **** 
+  99:../risc_runtime/risc_cp0_timer.c **** float risc_cp0_ms_get()
+ 100:../risc_runtime/risc_cp0_timer.c **** {
+ 342              		.loc 1 100 0
+ 343              		.cfi_startproc
+ 344              		.set	nomips16
+ 345              		.ent	risc_cp0_ms_get
+ 347              	risc_cp0_ms_get:
+ 348              		.frame	$fp,32,$31		# vars= 8, regs= 2/0, args= 16, gp= 0
+ 349              		.mask	0xc0000000,-4
+ 350              		.fmask	0x00000000,0
+ 351              		.set	noreorder
+ 352              		.set	nomacro
+ 353 01c0 E0FFBD27 		addiu	$sp,$sp,-32
+ 354              	$LCFI24 = .
+ 355              		.cfi_def_cfa_offset 32
+ 356 01c4 1C00BFAF 		sw	$31,28($sp)
+ 357 01c8 1800BEAF 		sw	$fp,24($sp)
+ 358              		.cfi_offset 31, -4
+ 359              		.cfi_offset 30, -8
+ 360 01cc 25F0A003 		move	$fp,$sp
+ 361              	$LCFI25 = .
+ 362              		.cfi_def_cfa_register 30
+ 101:../risc_runtime/risc_cp0_timer.c ****   unsigned int clock = get_cpu_clock();
+ 363              		.loc 1 101 0
+ 364 01d0 0000000C 		jal	get_cpu_clock
+ 365 01d4 00000000 		nop
+ 366              	
+ 367 01d8 1000C2AF 		sw	$2,16($fp)
+ 102:../risc_runtime/risc_cp0_timer.c ****   unsigned int tics = risc_cp0_tics_get();
+ 368              		.loc 1 102 0
+ 369 01dc 0000000C 		jal	risc_cp0_tics_get
+ 370 01e0 00000000 		nop
+ 371              	
+ 372 01e4 1400C2AF 		sw	$2,20($fp)
+ 103:../risc_runtime/risc_cp0_timer.c ****   return ((float)tics*1000.0f)/((float)clock);
+ 373 01e8 00000000 		.loc 1 103 0
+ 374 01ec 1400C28F 		lw	$2,20($fp)
+ 375 01f0 00000000 		nop
+ 376 01f4 00088244 		mtc1	$2,$f1
+ 377 01f8 21088046 		cvt.d.w	$f0,$f1
+ 378 01fc 00000244 		mfc1	$2,$f0
+ 379 0200 00080344 		mfc1	$3,$f1
+ 380 0204 1400C48F 		lw	$4,20($fp)
+ 381 0208 00000000 		nop
+ 382 020c 0B008104 		bgez	$4,$L13
+ 383 0210 00000000 		nop
+ 384              	
+ 385 0214 0000043C 		lui	$4,%hi($LC0)
+ 386 0218 0400858C 		lw	$5,%lo($LC0+4)($4)
+ 387 021c 0000848C 		lw	$4,%lo($LC0)($4)
+ 388 0220 00108244 		mtc1	$2,$f2
+ 389 0224 00188344 		mtc1	$3,$f3
+ 390 0228 00008444 		mtc1	$4,$f0
+ 391 022c 00088544 		mtc1	$5,$f1
+ 392 0230 80102046 		add.d	$f2,$f2,$f0
+ 393 0234 00100244 		mfc1	$2,$f2
+ 394 0238 00180344 		mfc1	$3,$f3
+ 395              	$L13:
+ 396 023c 00108244 		mtc1	$2,$f2
+ 397 0240 00188344 		mtc1	$3,$f3
+ 398 0244 E0102046 		cvt.s.d	$f3,$f2
+ 399 0248 00180344 		mfc1	$3,$f3
+ 400 024c 0000023C 		lui	$2,%hi($LC1)
+ 401 0250 0800428C 		lw	$2,%lo($LC1)($2)
+ 402 0254 00008344 		mtc1	$3,$f0
+ 403 0258 00088244 		mtc1	$2,$f1
+ 404 025c 02000146 		mul.s	$f0,$f0,$f1
+ 405 0260 00000644 		mfc1	$6,$f0
+ 406 0264 1000C28F 		lw	$2,16($fp)
+ 407 0268 00000000 		nop
+ 408 026c 00188244 		mtc1	$2,$f3
+ 409 0270 A1188046 		cvt.d.w	$f2,$f3
+ 410 0274 00100244 		mfc1	$2,$f2
+ 411 0278 00180344 		mfc1	$3,$f3
+ 412 027c 1000C48F 		lw	$4,16($fp)
+ 413 0280 00000000 		nop
+ 414 0284 0B008104 		bgez	$4,$L14
+ 415 0288 00000000 		nop
+ 416              	
+ 417 028c 0000043C 		lui	$4,%hi($LC0)
+ 418 0290 0400858C 		lw	$5,%lo($LC0+4)($4)
+ 419 0294 0000848C 		lw	$4,%lo($LC0)($4)
+ 420 0298 00008244 		mtc1	$2,$f0
+ 421 029c 00088344 		mtc1	$3,$f1
+ 422 02a0 00108444 		mtc1	$4,$f2
+ 423 02a4 00188544 		mtc1	$5,$f3
+ 424 02a8 00002246 		add.d	$f0,$f0,$f2
+ 425 02ac 00000244 		mfc1	$2,$f0
+ 426 02b0 00080344 		mfc1	$3,$f1
+ 427              	$L14:
+ 428 02b4 00008244 		mtc1	$2,$f0
+ 429 02b8 00088344 		mtc1	$3,$f1
+ 430 02bc 60002046 		cvt.s.d	$f1,$f0
+ 431 02c0 00080244 		mfc1	$2,$f1
+ 432 02c4 00108644 		mtc1	$6,$f2
+ 433 02c8 00188244 		mtc1	$2,$f3
+ 434 02cc 83100346 		div.s	$f2,$f2,$f3
+ 435 02d0 00100244 		mfc1	$2,$f2
+ 104:../risc_runtime/risc_cp0_timer.c **** }
+ 436              		.loc 1 104 0
+ 437 02d4 00008244 		mtc1	$2,$f0
+ 438 02d8 25E8C003 		move	$sp,$fp
+ 439              	$LCFI26 = .
+ 440              		.cfi_def_cfa_register 29
+ 441 02dc 1C00BF8F 		lw	$31,28($sp)
+ 442 02e0 1800BE8F 		lw	$fp,24($sp)
+ 443 02e4 2000BD27 		addiu	$sp,$sp,32
+ 444              	$LCFI27 = .
+ 445              		.cfi_restore 30
+ 446              		.cfi_restore 31
+ 447              		.cfi_def_cfa_offset 0
+ 448 02e8 0800E003 		j	$31
+ 449 02ec 00000000 		nop
+ 450              	
+ 451              		.set	macro
+ 452              		.set	reorder
+ 453              		.end	risc_cp0_ms_get
+ 454              		.cfi_endproc
+ 455              	$LFE6:
+ 457              		.rdata
+ 458              		.align	3
+ 459              	$LC0:
+ 460 0000 00000000 		.word	0
+ 461 0004 0000F041 		.word	1106247680
+ 462              		.align	2
+ 463              	$LC1:
+ 464 0008 00007A44 		.word	1148846080
+ 465              		.text
+ 466              	$Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ../risc_runtime/risc_cp0_timer.c
+                            *COM*:0000000000000004 startmsec
+                            *COM*:0000000000000004 finimsec
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:20     .text:0000000000000000 starttime
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:78     .text:0000000000000054 stoptime
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:126    .text:0000000000000094 gettime
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:173    .text:00000000000000cc __clock
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:222    .bss:0000000000000000 _risc_cp0_clk_counter
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:233    .text:0000000000000104 risc_cp0_tics_start
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:275    .text:0000000000000130 risc_cp0_tics_get
+C:\Users\mamon\AppData\Local\Temp\ccS1zNw3.s:347    .text:00000000000001c0 risc_cp0_ms_get
+
+UNDEFINED SYMBOLS
+get_cpu_clock

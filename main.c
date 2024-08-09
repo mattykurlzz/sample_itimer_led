@@ -39,10 +39,8 @@ void int_handler(int a)
 {
 
 	if ( (ITCSR0 & 2) == 2 ){
-//		risc_it_stop(IT0);
 		ITCSR0 &= ~(2);
-		//risc_disable_interrupt(RISC_INT_IT0,0);
-		//flash_interrupt_on();
+		flash_interrupt_on();
 		interrupt_counter_it0++;
 	}
 	return;
@@ -52,6 +50,7 @@ void flash_interrupt_off()
 {
 	// turn the led off
 	risc_it_stop(IT1);
+	ITCSR1 &= ~(2);
 
 	MFBSP3_GPIO &= ~(LDAT7);
 
@@ -68,8 +67,8 @@ void flash_interrupt_on()
 	MFBSP3_GPIO = LDAT7;
 
 	// setup the time
-//	risc_it_setup(0x3fff, 2, IT1);
-//	risc_it_start(IT1);
+	risc_it_setup(0x1fff, 2, IT1);
+	risc_it_start(IT1);
 	return;
 }
 
@@ -87,17 +86,12 @@ int main() {
 	enum ERL_ERROR error_status_it1 = risc_register_interrupt(flash_interrupt_off, RISC_INT_IT1);
 											//регистрирует обработчик прерываний RISC_INT_IT0
 
-	risc_it_setup(0x7fff, 2, IT0);			//задает период и источник прерывания.
+	risc_it_setup(0x9fff, 2, IT0);			//задает период и источник прерывания.
 	risc_it_start(IT0);
 
-    while (interrupt_counter_it0<5);
+    while (interrupt_counter_it1<5);
 
-//    risc_it_setup(0x3fff, 2, IT1);
-//    risc_it_start(IT1);
-//    risc_it_setup(0x7fff, 2, IT0);			//задает период и источник прерывания.
-//	risc_it_start(IT0);
-
-//    while (interrupt_counter_it0==1);
+    risc_it_stop(IT0);
 
     if (interrupt_counter_it0 == 5)
     {

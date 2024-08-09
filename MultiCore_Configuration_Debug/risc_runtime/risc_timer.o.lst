@@ -1,0 +1,336 @@
+   1              		.section .mdebug.abi32
+   2              		.previous
+   3              		.gnu_attribute 4, 1
+   4              		.text
+   5              	$Ltext0:
+   6              		.cfi_sections	.debug_frame
+   7              		.globl	_risc_clk_counter
+   8              		.section	.bss,"aw",@nobits
+   9              		.align	2
+  12              	_risc_clk_counter:
+  13 0000 00000000 		.space	4
+  14              		.text
+  15              		.align	2
+  16              	$LFB0 = .
+  17              		.file 1 "../risc_runtime/risc_timer.c"
+   1:../risc_runtime/risc_timer.c **** // ******************** risc_timer.c ***************************************
+   2:../risc_runtime/risc_timer.c **** //                 Risc-Dsp runtime library
+   3:../risc_runtime/risc_timer.c **** //
+   4:../risc_runtime/risc_timer.c **** // Realization of interface to IT and WDT timers using ITSCALE,
+   5:../risc_runtime/risc_timer.c **** // ITPERIOD and ITCSR registers
+   6:../risc_runtime/risc_timer.c **** //
+   7:../risc_runtime/risc_timer.c **** // (c) multicore.ru
+   8:../risc_runtime/risc_timer.c **** //
+   9:../risc_runtime/risc_timer.c **** // *******************************************************************
+  10:../risc_runtime/risc_timer.c **** 
+  11:../risc_runtime/risc_timer.c **** #include "risc_timer.h"
+  12:../risc_runtime/risc_timer.c **** #include "cpu.h"
+  13:../risc_runtime/risc_timer.c **** #include "risc_interrupt.h"
+  14:../risc_runtime/risc_timer.c **** #include "system.h"
+  15:../risc_runtime/risc_timer.c **** 
+  16:../risc_runtime/risc_timer.c **** unsigned int _risc_clk_counter = 0;
+  17:../risc_runtime/risc_timer.c **** #ifdef __DMA_TIME_COUNTING__
+  18:../risc_runtime/risc_timer.c ****   extern float _dma_working_time_counter;
+  19:../risc_runtime/risc_timer.c **** #endif
+  20:../risc_runtime/risc_timer.c **** 
+  21:../risc_runtime/risc_timer.c **** static int get_core () { return 0; }
+  18              		.loc 1 21 0
+  19              		.cfi_startproc
+  20              		.set	nomips16
+  21              		.ent	get_core
+  23              	get_core:
+  24              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+  25              		.mask	0x40000000,-4
+  26              		.fmask	0x00000000,0
+  27              		.set	noreorder
+  28              		.set	nomacro
+  29 0000 F8FFBD27 		addiu	$sp,$sp,-8
+  30              	$LCFI0 = .
+  31              		.cfi_def_cfa_offset 8
+  32 0004 0400BEAF 		sw	$fp,4($sp)
+  33              		.cfi_offset 30, -4
+  34 0008 25F0A003 		move	$fp,$sp
+  35              	$LCFI1 = .
+  36              		.cfi_def_cfa_register 30
+  37              		.loc 1 21 0
+  38 000c 25100000 		move	$2,$0
+  39 0010 25E8C003 		move	$sp,$fp
+  40              	$LCFI2 = .
+  41              		.cfi_def_cfa_register 29
+  42 0014 0400BE8F 		lw	$fp,4($sp)
+  43 0018 0800BD27 		addiu	$sp,$sp,8
+  44              	$LCFI3 = .
+  45              		.cfi_restore 30
+  46              		.cfi_def_cfa_offset 0
+  47 001c 0800E003 		j	$31
+  48 0020 00000000 		nop
+  49              	
+  50              		.set	macro
+  51              		.set	reorder
+  52              		.end	get_core
+  53              		.cfi_endproc
+  54              	$LFE0:
+  56              		.align	2
+  57              		.globl	risc_it_setup
+  58              	$LFB1 = .
+  22:../risc_runtime/risc_timer.c **** 
+  23:../risc_runtime/risc_timer.c **** void risc_it_setup(unsigned int period, int clk_src, int it)
+  24:../risc_runtime/risc_timer.c **** {
+  59              		.loc 1 24 0
+  60              		.cfi_startproc
+  61              		.set	nomips16
+  62              		.ent	risc_it_setup
+  64              	risc_it_setup:
+  65              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+  66              		.mask	0x40000000,-4
+  67              		.fmask	0x00000000,0
+  68              		.set	noreorder
+  69              		.set	nomacro
+  70 0024 F8FFBD27 		addiu	$sp,$sp,-8
+  71              	$LCFI4 = .
+  72              		.cfi_def_cfa_offset 8
+  73 0028 0400BEAF 		sw	$fp,4($sp)
+  74              		.cfi_offset 30, -4
+  75 002c 25F0A003 		move	$fp,$sp
+  76              	$LCFI5 = .
+  77              		.cfi_def_cfa_register 30
+  78 0030 0800C4AF 		sw	$4,8($fp)
+  79 0034 0C00C5AF 		sw	$5,12($fp)
+  80 0038 1000C6AF 		sw	$6,16($fp)
+  25:../risc_runtime/risc_timer.c **** 	if (it == 0)
+  81 003c 00000000 		.loc 1 25 0
+  82 0040 1000C28F 		lw	$2,16($fp)
+  83 0044 00000000 		nop
+  84 0048 11004014 		bne	$2,$0,$L4
+  85 004c 00000000 		nop
+  86              	
+  26:../risc_runtime/risc_timer.c **** 	{
+  27:../risc_runtime/risc_timer.c **** 		ITSCALE0 = 0;
+  87              		.loc 1 27 0
+  88 0050 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+  89 0054 2C504234 		ori	$2,$2,0x502c
+  90 0058 000040AC 		sw	$0,0($2)
+  28:../risc_runtime/risc_timer.c **** 		ITPERIOD0 = period;
+  91              		.loc 1 28 0
+  92 005c 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+  93 0060 24504234 		ori	$2,$2,0x5024
+  94 0064 0800C38F 		lw	$3,8($fp)
+  95 0068 00000000 		nop
+  96 006c 000043AC 		sw	$3,0($2)
+  29:../risc_runtime/risc_timer.c **** 		ITCSR0 = (clk_src << 3);
+  97              		.loc 1 29 0
+  98 0070 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+  99 0074 20504234 		ori	$2,$2,0x5020
+ 100 0078 0C00C38F 		lw	$3,12($fp)
+ 101 007c 00000000 		nop
+ 102 0080 C0180300 		sll	$3,$3,3
+ 103 0084 000043AC 		sw	$3,0($2)
+ 104 0088 32000008 		j	$L3
+ 105 008c 00000000 		nop
+ 106              	
+ 107              	$L4:
+  30:../risc_runtime/risc_timer.c **** 	}
+  31:../risc_runtime/risc_timer.c **** 	else
+  32:../risc_runtime/risc_timer.c **** 	{
+  33:../risc_runtime/risc_timer.c **** 		ITSCALE1 = 0;
+ 108              		.loc 1 33 0
+ 109 0090 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 110 0094 0C504234 		ori	$2,$2,0x500c
+ 111 0098 000040AC 		sw	$0,0($2)
+  34:../risc_runtime/risc_timer.c **** 		ITPERIOD1 = period;
+ 112              		.loc 1 34 0
+ 113 009c 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 114 00a0 04504234 		ori	$2,$2,0x5004
+ 115 00a4 0800C38F 		lw	$3,8($fp)
+ 116 00a8 00000000 		nop
+ 117 00ac 000043AC 		sw	$3,0($2)
+  35:../risc_runtime/risc_timer.c **** 		ITCSR1 = (clk_src << 3);
+ 118              		.loc 1 35 0
+ 119 00b0 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 120 00b4 00504234 		ori	$2,$2,0x5000
+ 121 00b8 0C00C38F 		lw	$3,12($fp)
+ 122 00bc 00000000 		nop
+ 123 00c0 C0180300 		sll	$3,$3,3
+ 124 00c4 000043AC 		sw	$3,0($2)
+ 125              	$L3:
+  36:../risc_runtime/risc_timer.c **** 	}
+  37:../risc_runtime/risc_timer.c **** }
+ 126              		.loc 1 37 0
+ 127 00c8 25E8C003 		move	$sp,$fp
+ 128              	$LCFI6 = .
+ 129              		.cfi_def_cfa_register 29
+ 130 00cc 0400BE8F 		lw	$fp,4($sp)
+ 131 00d0 0800BD27 		addiu	$sp,$sp,8
+ 132              	$LCFI7 = .
+ 133              		.cfi_restore 30
+ 134              		.cfi_def_cfa_offset 0
+ 135 00d4 0800E003 		j	$31
+ 136 00d8 00000000 		nop
+ 137              	
+ 138              		.set	macro
+ 139              		.set	reorder
+ 140              		.end	risc_it_setup
+ 141              		.cfi_endproc
+ 142              	$LFE1:
+ 144              		.align	2
+ 145              		.globl	risc_it_start
+ 146              	$LFB2 = .
+  38:../risc_runtime/risc_timer.c **** 
+  39:../risc_runtime/risc_timer.c **** void risc_it_start(int it)
+  40:../risc_runtime/risc_timer.c **** {
+ 147              		.loc 1 40 0
+ 148              		.cfi_startproc
+ 149              		.set	nomips16
+ 150              		.ent	risc_it_start
+ 152              	risc_it_start:
+ 153              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 154              		.mask	0x40000000,-4
+ 155              		.fmask	0x00000000,0
+ 156              		.set	noreorder
+ 157              		.set	nomacro
+ 158 00dc F8FFBD27 		addiu	$sp,$sp,-8
+ 159              	$LCFI8 = .
+ 160              		.cfi_def_cfa_offset 8
+ 161 00e0 0400BEAF 		sw	$fp,4($sp)
+ 162              		.cfi_offset 30, -4
+ 163 00e4 25F0A003 		move	$fp,$sp
+ 164              	$LCFI9 = .
+ 165              		.cfi_def_cfa_register 30
+ 166 00e8 0800C4AF 		sw	$4,8($fp)
+  41:../risc_runtime/risc_timer.c **** 	if (it == 0)
+ 167 00ec 00000000 		.loc 1 41 0
+ 168 00f0 0800C28F 		lw	$2,8($fp)
+ 169 00f4 00000000 		nop
+ 170 00f8 0B004014 		bne	$2,$0,$L7
+ 171 00fc 00000000 		nop
+ 172              	
+  42:../risc_runtime/risc_timer.c **** 		ITCSR0 |= 1;
+ 173              		.loc 1 42 0
+ 174 0100 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 175 0104 20504234 		ori	$2,$2,0x5020
+ 176 0108 2FB8033C 		li	$3,-1204879360			# 0xffffffffb82f0000
+ 177 010c 20506334 		ori	$3,$3,0x5020
+ 178 0110 0000638C 		lw	$3,0($3)
+ 179 0114 00000000 		nop
+ 180 0118 01006334 		ori	$3,$3,0x1
+ 181 011c 000043AC 		sw	$3,0($2)
+ 182 0120 52000008 		j	$L6
+ 183 0124 00000000 		nop
+ 184              	
+ 185              	$L7:
+  43:../risc_runtime/risc_timer.c **** 	else
+  44:../risc_runtime/risc_timer.c **** 		ITCSR1 |= 1;
+ 186              		.loc 1 44 0
+ 187 0128 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 188 012c 00504234 		ori	$2,$2,0x5000
+ 189 0130 2FB8033C 		li	$3,-1204879360			# 0xffffffffb82f0000
+ 190 0134 00506334 		ori	$3,$3,0x5000
+ 191 0138 0000638C 		lw	$3,0($3)
+ 192 013c 00000000 		nop
+ 193 0140 01006334 		ori	$3,$3,0x1
+ 194 0144 000043AC 		sw	$3,0($2)
+ 195              	$L6:
+  45:../risc_runtime/risc_timer.c **** }
+ 196              		.loc 1 45 0
+ 197 0148 25E8C003 		move	$sp,$fp
+ 198              	$LCFI10 = .
+ 199              		.cfi_def_cfa_register 29
+ 200 014c 0400BE8F 		lw	$fp,4($sp)
+ 201 0150 0800BD27 		addiu	$sp,$sp,8
+ 202              	$LCFI11 = .
+ 203              		.cfi_restore 30
+ 204              		.cfi_def_cfa_offset 0
+ 205 0154 0800E003 		j	$31
+ 206 0158 00000000 		nop
+ 207              	
+ 208              		.set	macro
+ 209              		.set	reorder
+ 210              		.end	risc_it_start
+ 211              		.cfi_endproc
+ 212              	$LFE2:
+ 214              		.align	2
+ 215              		.globl	risc_it_stop
+ 216              	$LFB3 = .
+  46:../risc_runtime/risc_timer.c **** 
+  47:../risc_runtime/risc_timer.c **** void risc_it_stop(int it)
+  48:../risc_runtime/risc_timer.c **** {
+ 217              		.loc 1 48 0
+ 218              		.cfi_startproc
+ 219              		.set	nomips16
+ 220              		.ent	risc_it_stop
+ 222              	risc_it_stop:
+ 223              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 224              		.mask	0x40000000,-4
+ 225              		.fmask	0x00000000,0
+ 226              		.set	noreorder
+ 227              		.set	nomacro
+ 228 015c F8FFBD27 		addiu	$sp,$sp,-8
+ 229              	$LCFI12 = .
+ 230              		.cfi_def_cfa_offset 8
+ 231 0160 0400BEAF 		sw	$fp,4($sp)
+ 232              		.cfi_offset 30, -4
+ 233 0164 25F0A003 		move	$fp,$sp
+ 234              	$LCFI13 = .
+ 235              		.cfi_def_cfa_register 30
+ 236 0168 0800C4AF 		sw	$4,8($fp)
+  49:../risc_runtime/risc_timer.c **** 	if (it == 0)
+ 237 016c 00000000 		.loc 1 49 0
+ 238 0170 0800C28F 		lw	$2,8($fp)
+ 239 0174 00000000 		nop
+ 240 0178 0B004014 		bne	$2,$0,$L10
+ 241 017c 00000000 		nop
+ 242              	
+  50:../risc_runtime/risc_timer.c **** 		ITCSR0 &= 0xfe;
+ 243              		.loc 1 50 0
+ 244 0180 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 245 0184 20504234 		ori	$2,$2,0x5020
+ 246 0188 2FB8033C 		li	$3,-1204879360			# 0xffffffffb82f0000
+ 247 018c 20506334 		ori	$3,$3,0x5020
+ 248 0190 0000638C 		lw	$3,0($3)
+ 249 0194 00000000 		nop
+ 250 0198 FE006330 		andi	$3,$3,0xfe
+ 251 019c 000043AC 		sw	$3,0($2)
+ 252 01a0 72000008 		j	$L9
+ 253 01a4 00000000 		nop
+ 254              	
+ 255              	$L10:
+  51:../risc_runtime/risc_timer.c **** 	else
+  52:../risc_runtime/risc_timer.c **** 		ITCSR1 &= 0xfe;
+ 256              		.loc 1 52 0
+ 257 01a8 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 258 01ac 00504234 		ori	$2,$2,0x5000
+ 259 01b0 2FB8033C 		li	$3,-1204879360			# 0xffffffffb82f0000
+ 260 01b4 00506334 		ori	$3,$3,0x5000
+ 261 01b8 0000638C 		lw	$3,0($3)
+ 262 01bc 00000000 		nop
+ 263 01c0 FE006330 		andi	$3,$3,0xfe
+ 264 01c4 000043AC 		sw	$3,0($2)
+ 265              	$L9:
+  53:../risc_runtime/risc_timer.c **** }
+ 266              		.loc 1 53 0
+ 267 01c8 25E8C003 		move	$sp,$fp
+ 268              	$LCFI14 = .
+ 269              		.cfi_def_cfa_register 29
+ 270 01cc 0400BE8F 		lw	$fp,4($sp)
+ 271 01d0 0800BD27 		addiu	$sp,$sp,8
+ 272              	$LCFI15 = .
+ 273              		.cfi_restore 30
+ 274              		.cfi_def_cfa_offset 0
+ 275 01d4 0800E003 		j	$31
+ 276 01d8 00000000 		nop
+ 277              	
+ 278              		.set	macro
+ 279              		.set	reorder
+ 280              		.end	risc_it_stop
+ 281              		.cfi_endproc
+ 282              	$LFE3:
+ 284              	$Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ../risc_runtime/risc_timer.c
+C:\Users\mamon\AppData\Local\Temp\ccd5hV3U.s:12     .bss:0000000000000000 _risc_clk_counter
+C:\Users\mamon\AppData\Local\Temp\ccd5hV3U.s:23     .text:0000000000000000 get_core
+C:\Users\mamon\AppData\Local\Temp\ccd5hV3U.s:64     .text:0000000000000024 risc_it_setup
+C:\Users\mamon\AppData\Local\Temp\ccd5hV3U.s:152    .text:00000000000000dc risc_it_start
+C:\Users\mamon\AppData\Local\Temp\ccd5hV3U.s:222    .text:000000000000015c risc_it_stop
+
+NO UNDEFINED SYMBOLS

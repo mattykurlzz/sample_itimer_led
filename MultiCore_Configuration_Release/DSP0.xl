@@ -1,0 +1,30 @@
+OUTPUT_ARCH(elcore)
+
+PHDRS
+{
+    text PT_LOAD;
+    data PT_LOAD;
+}
+
+SECTIONS {
+
+   . =0x0;
+   .DSP0_data :
+   {
+   }:data
+   .DSP0_bss :
+   {
+   }:data
+
+   . =0xb8440000;
+   .DSP0_text :
+   {
+   }:text
+
+   .DSP0_tmp :
+   {
+      __DSPX__.xx(.data)
+      __DSPX__.xx(.text)
+      __DSPX__.xx(COMMON)
+   }:text
+}

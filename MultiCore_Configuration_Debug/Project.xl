@@ -1,0 +1,143 @@
+OUTPUT_ARCH("mips:isa32")
+TARGET("elf32-littlemips")
+ENTRY(_start)
+
+PROVIDE(_mem_size = 0x0800);
+
+SECTIONS {
+
+   . =0x80000180;
+
+   .textI :
+   {
+      ./risc_runtime/risc_interrupt_handler.o (.text);
+   }
+
+   . =0x80001000;
+   .text :
+   {
+      ./risc_runtime/risc_cp0_timer.o (.text);
+      ./risc_runtime/risc_interrupt.o (.text);
+      ./risc_runtime/system.o (.text);
+      ./risc_runtime/risc_timer.o (.text);
+      ./main.o (.text);
+   }
+
+   .data :
+   {
+      ./main.o (.data);
+      ./main.o (.sdata);
+      ./main.o (.rodata);
+      ./risc_runtime/risc_cp0_timer.o (.data);
+      ./risc_runtime/risc_cp0_timer.o (.sdata);
+      ./risc_runtime/risc_cp0_timer.o (.rodata);
+      ./risc_runtime/risc_interrupt.o (.data);
+      ./risc_runtime/risc_interrupt.o (.sdata);
+      ./risc_runtime/risc_interrupt.o (.rodata);
+      ./risc_runtime/system.o (.data);
+      ./risc_runtime/system.o (.sdata);
+      ./risc_runtime/system.o (.rodata);
+      ./risc_runtime/risc_interrupt_handler.o (.data);
+      ./risc_runtime/risc_interrupt_handler.o (.sdata);
+      ./risc_runtime/risc_interrupt_handler.o (.rodata);
+      ./risc_runtime/risc_timer.o (.data);
+      ./risc_runtime/risc_timer.o (.sdata);
+      ./risc_runtime/risc_timer.o (.rodata);
+   }
+   .DSPX_tmp(NOLOAD):
+   {
+      * (.DSP0_tmp);
+      * (.DSP1_tmp);
+      * (.DSP2_tmp);
+      * (.DSP3_tmp);
+   }
+
+   _gp =ALIGN(8);
+   
+   .lit4 :
+   {
+      *(.lit4)
+   }
+   
+   . = ALIGN(8);
+   PROVIDE (edata = .);
+   _edata = .;
+   _fbss = .;
+   
+   .sbss : 
+   {
+      *(.sbss)
+      *(.scommon)
+      *(*ABS*)
+   }
+   
+   .bss :
+   {
+      _bss_start = .;
+      *(.bss);
+      *(COMMON)
+   }
+   . += 0x1000;
+   
+   PROVIDE(__stack = ALIGN(8));
+   . += 0x10;
+   
+   PROVIDE(_end = ALIGN(8));
+   end = .;
+
+   . =0xb8400000;
+   .DSP0_data :
+   {
+   }
+   .DSP0_bss :
+   {
+      *(.DSP0_bss);
+   }
+
+   . =0xb8440000;
+   .DSP0_text :
+   {
+   }
+
+   . =0xb8800000;
+   .DSP1_data :
+   {
+   }
+   .DSP1_bss :
+   {
+      *(.DSP1_bss);
+   }
+
+   . =0xb8840000;
+   .DSP1_text :
+   {
+   }
+
+   . =0xb8c00000;
+   .DSP2_data :
+   {
+   }
+   .DSP2_bss :
+   {
+      *(.DSP2_bss);
+   }
+
+   . =0xb8c40000;
+   .DSP2_text :
+   {
+   }
+
+   . =0xb9000000;
+   .DSP3_data :
+   {
+   }
+   .DSP3_bss :
+   {
+      *(.DSP3_bss);
+   }
+
+   . =0xb9040000;
+   .DSP3_text :
+   {
+   }
+}

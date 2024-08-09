@@ -1,0 +1,30 @@
+OUTPUT_ARCH(elcore32)
+
+PHDRS
+{
+    text PT_LOAD;
+    data PT_LOAD;
+}
+
+SECTIONS {
+
+   . =0x40000;
+   .DSP2_data :
+   {
+   }:data
+   .DSP2_bss :
+   {
+   }:data
+
+   . =0xb8c40000;
+   .DSP2_text :
+   {
+   }:text
+
+   .DSP2_tmp :
+   {
+      __DSPX__.xx(.data)
+      __DSPX__.xx(.text)
+      __DSPX__.xx(COMMON)
+   }:text
+}

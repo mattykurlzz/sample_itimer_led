@@ -1,0 +1,427 @@
+   1              		.section .mdebug.abi32
+   2              		.previous
+   3              		.gnu_attribute 4, 1
+   4              		.text
+   5              	$Ltext0:
+   6              		.cfi_sections	.debug_frame
+   7              		.align	2
+   8              		.globl	sys_kernel_pa_to_va
+   9              	$LFB0 = .
+  10              		.file 1 "../risc_runtime/system.c"
+   1:../risc_runtime/system.c **** #include "system.h"
+   2:../risc_runtime/system.c **** 
+   3:../risc_runtime/system.c **** unsigned int sys_kernel_pa_to_va(unsigned int pa)
+   4:../risc_runtime/system.c **** {
+  11              		.loc 1 4 0
+  12              		.cfi_startproc
+  13              		.set	nomips16
+  14              		.ent	sys_kernel_pa_to_va
+  16              	sys_kernel_pa_to_va:
+  17              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+  18              		.mask	0x40000000,-4
+  19              		.fmask	0x00000000,0
+  20              		.set	noreorder
+  21              		.set	nomacro
+  22 0000 F8FFBD27 		addiu	$sp,$sp,-8
+  23              	$LCFI0 = .
+  24              		.cfi_def_cfa_offset 8
+  25 0004 0400BEAF 		sw	$fp,4($sp)
+  26              		.cfi_offset 30, -4
+  27 0008 25F0A003 		move	$fp,$sp
+  28              	$LCFI1 = .
+  29              		.cfi_def_cfa_register 30
+  30 000c 0800C4AF 		sw	$4,8($fp)
+   5:../risc_runtime/system.c ****     if(pa < 0x40000000) return (pa + 0xa0000000);
+  31 0010 00000000 		.loc 1 5 0
+  32 0014 0800C38F 		lw	$3,8($fp)
+  33 0018 0040023C 		li	$2,1073741824			# 0x40000000
+  34 001c 2B106200 		sltu	$2,$3,$2
+  35 0020 06004010 		beq	$2,$0,$L2
+  36 0024 00000000 		nop
+  37              	
+  38              		.loc 1 5 0 is_stmt 0 discriminator 1
+  39 0028 0800C38F 		lw	$3,8($fp)
+  40 002c 00A0023C 		li	$2,-1610612736			# 0xffffffffa0000000
+  41 0030 21106200 		addu	$2,$3,$2
+  42 0034 1A000008 		j	$L3
+  43 0038 00000000 		nop
+  44              	
+  45              	$L2:
+   6:../risc_runtime/system.c ****     if(pa < 0xC0000000) return (pa - 0x40000000);
+  46              		.loc 1 6 0 is_stmt 1
+  47 003c 0800C38F 		lw	$3,8($fp)
+  48 0040 00C0023C 		li	$2,-1073741824			# 0xffffffffc0000000
+  49 0044 2B106200 		sltu	$2,$3,$2
+  50 0048 06004010 		beq	$2,$0,$L4
+  51 004c 00000000 		nop
+  52              	
+  53              		.loc 1 6 0 is_stmt 0 discriminator 1
+  54 0050 0800C38F 		lw	$3,8($fp)
+  55 0054 00C0023C 		li	$2,-1073741824			# 0xffffffffc0000000
+  56 0058 21106200 		addu	$2,$3,$2
+  57 005c 1A000008 		j	$L3
+  58 0060 00000000 		nop
+  59              	
+  60              	$L4:
+   7:../risc_runtime/system.c ****     return pa;
+  61              		.loc 1 7 0 is_stmt 1
+  62 0064 0800C28F 		lw	$2,8($fp)
+  63              	$L3:
+   8:../risc_runtime/system.c **** }
+  64              		.loc 1 8 0
+  65 0068 25E8C003 		move	$sp,$fp
+  66              	$LCFI2 = .
+  67              		.cfi_def_cfa_register 29
+  68 006c 0400BE8F 		lw	$fp,4($sp)
+  69 0070 0800BD27 		addiu	$sp,$sp,8
+  70              	$LCFI3 = .
+  71              		.cfi_restore 30
+  72              		.cfi_def_cfa_offset 0
+  73 0074 0800E003 		j	$31
+  74 0078 00000000 		nop
+  75              	
+  76              		.set	macro
+  77              		.set	reorder
+  78              		.end	sys_kernel_pa_to_va
+  79              		.cfi_endproc
+  80              	$LFE0:
+  82              		.align	2
+  83              		.globl	sys_kernel_va_to_pa
+  84              	$LFB1 = .
+   9:../risc_runtime/system.c **** unsigned int sys_kernel_va_to_pa(unsigned int va)
+  10:../risc_runtime/system.c **** {
+  85              		.loc 1 10 0
+  86              		.cfi_startproc
+  87              		.set	nomips16
+  88              		.ent	sys_kernel_va_to_pa
+  90              	sys_kernel_va_to_pa:
+  91              		.frame	$fp,24,$31		# vars= 0, regs= 2/0, args= 16, gp= 0
+  92              		.mask	0xc0000000,-4
+  93              		.fmask	0x00000000,0
+  94              		.set	noreorder
+  95              		.set	nomacro
+  96 007c E8FFBD27 		addiu	$sp,$sp,-24
+  97              	$LCFI4 = .
+  98              		.cfi_def_cfa_offset 24
+  99 0080 1400BFAF 		sw	$31,20($sp)
+ 100 0084 1000BEAF 		sw	$fp,16($sp)
+ 101              		.cfi_offset 31, -4
+ 102              		.cfi_offset 30, -8
+ 103 0088 25F0A003 		move	$fp,$sp
+ 104              	$LCFI5 = .
+ 105              		.cfi_def_cfa_register 30
+ 106 008c 1800C4AF 		sw	$4,24($fp)
+  11:../risc_runtime/system.c ****     if(va >= 0xE0000000) return va;
+ 107 0090 00000000 		.loc 1 11 0
+ 108 0094 1800C38F 		lw	$3,24($fp)
+ 109 0098 00E0023C 		li	$2,-536870912			# 0xffffffffe0000000
+ 110 009c 2B106200 		sltu	$2,$3,$2
+ 111 00a0 04004014 		bne	$2,$0,$L6
+ 112 00a4 00000000 		nop
+ 113              	
+ 114              		.loc 1 11 0 is_stmt 0 discriminator 1
+ 115 00a8 1800C28F 		lw	$2,24($fp)
+ 116 00ac 46000008 		j	$L7
+ 117 00b0 00000000 		nop
+ 118              	
+ 119              	$L6:
+  12:../risc_runtime/system.c ****     if(va >= 0xa0000000) return (va - 0xa0000000);
+ 120              		.loc 1 12 0 is_stmt 1
+ 121 00b4 1800C38F 		lw	$3,24($fp)
+ 122 00b8 00A0023C 		li	$2,-1610612736			# 0xffffffffa0000000
+ 123 00bc 2B106200 		sltu	$2,$3,$2
+ 124 00c0 06004014 		bne	$2,$0,$L8
+ 125 00c4 00000000 		nop
+ 126              	
+ 127              		.loc 1 12 0 is_stmt 0 discriminator 1
+ 128 00c8 1800C38F 		lw	$3,24($fp)
+ 129 00cc 0060023C 		li	$2,1610612736			# 0x60000000
+ 130 00d0 21106200 		addu	$2,$3,$2
+ 131 00d4 46000008 		j	$L7
+ 132 00d8 00000000 		nop
+ 133              	
+ 134              	$L8:
+  13:../risc_runtime/system.c ****     if(va < 0x80000000) return (va + 0x40000000);
+ 135              		.loc 1 13 0 is_stmt 1
+ 136 00dc 1800C28F 		lw	$2,24($fp)
+ 137 00e0 00000000 		nop
+ 138 00e4 06004004 		bltz	$2,$L9
+ 139 00e8 00000000 		nop
+ 140              	
+ 141              		.loc 1 13 0 is_stmt 0 discriminator 1
+ 142 00ec 1800C38F 		lw	$3,24($fp)
+ 143 00f0 0040023C 		li	$2,1073741824			# 0x40000000
+ 144 00f4 21106200 		addu	$2,$3,$2
+ 145 00f8 46000008 		j	$L7
+ 146 00fc 00000000 		nop
+ 147              	
+ 148              	$L9:
+  14:../risc_runtime/system.c ****     return sys_kernel_va_to_pa(va | 0x20000000); //cache address
+ 149              		.loc 1 14 0 is_stmt 1
+ 150 0100 1800C38F 		lw	$3,24($fp)
+ 151 0104 0020023C 		li	$2,536870912			# 0x20000000
+ 152 0108 25106200 		or	$2,$3,$2
+ 153 010c 25204000 		move	$4,$2
+ 154 0110 0000000C 		jal	sys_kernel_va_to_pa
+ 155 0114 00000000 		nop
+ 156              	
+ 157              	$L7:
+  15:../risc_runtime/system.c **** }
+ 158              		.loc 1 15 0
+ 159 0118 25E8C003 		move	$sp,$fp
+ 160              	$LCFI6 = .
+ 161              		.cfi_def_cfa_register 29
+ 162 011c 1400BF8F 		lw	$31,20($sp)
+ 163 0120 1000BE8F 		lw	$fp,16($sp)
+ 164 0124 1800BD27 		addiu	$sp,$sp,24
+ 165              	$LCFI7 = .
+ 166              		.cfi_restore 30
+ 167              		.cfi_restore 31
+ 168              		.cfi_def_cfa_offset 0
+ 169 0128 0800E003 		j	$31
+ 170 012c 00000000 		nop
+ 171              	
+ 172              		.set	macro
+ 173              		.set	reorder
+ 174              		.end	sys_kernel_va_to_pa
+ 175              		.cfi_endproc
+ 176              	$LFE1:
+ 178              		.align	2
+ 179              		.globl	get_cpu_clock
+ 180              	$LFB2 = .
+  16:../risc_runtime/system.c **** 
+  17:../risc_runtime/system.c **** unsigned get_cpu_clock(void)
+  18:../risc_runtime/system.c **** {
+ 181              		.loc 1 18 0
+ 182              		.cfi_startproc
+ 183              		.set	nomips16
+ 184              		.ent	get_cpu_clock
+ 186              	get_cpu_clock:
+ 187              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 188              		.mask	0x40000000,-4
+ 189              		.fmask	0x00000000,0
+ 190              		.set	noreorder
+ 191              		.set	nomacro
+ 192 0130 F8FFBD27 		addiu	$sp,$sp,-8
+ 193              	$LCFI8 = .
+ 194              		.cfi_def_cfa_offset 8
+ 195 0134 0400BEAF 		sw	$fp,4($sp)
+ 196              		.cfi_offset 30, -4
+ 197 0138 25F0A003 		move	$fp,$sp
+ 198              	$LCFI9 = .
+ 199              		.cfi_def_cfa_register 30
+  19:../risc_runtime/system.c **** #if (defined(TARGET_MCT04)||defined(TARGET_MCT05)||defined(TARGET_MCT03P)||defined(TARGET_MCT06)||d
+  20:../risc_runtime/system.c ****     if (CR_PLL&0x80)
+  21:../risc_runtime/system.c ****         if (CR_PLL & 0x7f)
+  22:../risc_runtime/system.c ****             return((XTI)*(CR_PLL&0x7f));
+  23:../risc_runtime/system.c ****         else
+  24:../risc_runtime/system.c ****             return XTI>>4;
+  25:../risc_runtime/system.c ****     else
+  26:../risc_runtime/system.c ****         return XTI;
+  27:../risc_runtime/system.c **** #elif (defined(TARGET_MC0428)||defined(TARGET_NVCOM02T))
+  28:../risc_runtime/system.c ****     if (CR_PLL & 0x7f)
+  29:../risc_runtime/system.c ****         return((XTI)*(CR_PLL&0x7f));
+  30:../risc_runtime/system.c ****     else
+  31:../risc_runtime/system.c ****         return XTI>>4;
+  32:../risc_runtime/system.c **** #elif (defined(TARGET_MC24R))
+  33:../risc_runtime/system.c ****     if (CR_PLL & 0x1f)
+  34:../risc_runtime/system.c ****         return((XTI)*(CR_PLL&0x1f));
+  35:../risc_runtime/system.c ****     else
+  36:../risc_runtime/system.c ****         return XTI>>4;
+  37:../risc_runtime/system.c **** #elif (defined(TARGET_MC30SF6))
+  38:../risc_runtime/system.c ****     if (CR_PLL0&0x80)
+ 200              		.loc 1 38 0
+ 201 013c 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 202 0140 00404234 		ori	$2,$2,0x4000
+ 203 0144 0000428C 		lw	$2,0($2)
+ 204 0148 00000000 		nop
+ 205 014c 80004230 		andi	$2,$2,0x80
+ 206 0150 16004010 		beq	$2,$0,$L11
+ 207 0154 00000000 		nop
+ 208              	
+  39:../risc_runtime/system.c ****         if (CR_PLL0 & 0x7f)
+ 209              		.loc 1 39 0
+ 210 0158 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 211 015c 00404234 		ori	$2,$2,0x4000
+ 212 0160 0000428C 		lw	$2,0($2)
+ 213 0164 00000000 		nop
+ 214 0168 7F004230 		andi	$2,$2,0x7f
+ 215 016c 0B004010 		beq	$2,$0,$L12
+ 216 0170 00000000 		nop
+ 217              	
+  40:../risc_runtime/system.c ****             return((XTI)*(CR_PLL0&0x7f));
+ 218              		.loc 1 40 0
+ 219 0174 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 220 0178 00404234 		ori	$2,$2,0x4000
+ 221 017c 0000428C 		lw	$2,0($2)
+ 222 0180 00000000 		nop
+ 223 0184 7F004330 		andi	$3,$2,0x7f
+ 224 0188 4C00023C 		li	$2,4980736			# 0x4c0000
+ 225 018c 404B4234 		ori	$2,$2,0x4b40
+ 226 0190 02106270 		mul	$2,$3,$2
+ 227 0194 6D000008 		j	$L13
+ 228 0198 00000000 		nop
+ 229              	
+ 230              	$L12:
+  41:../risc_runtime/system.c ****         else
+  42:../risc_runtime/system.c ****             return XTI>>4;
+ 231              		.loc 1 42 0
+ 232 019c 0400023C 		li	$2,262144			# 0x40000
+ 233 01a0 B4C44234 		ori	$2,$2,0xc4b4
+ 234 01a4 6D000008 		j	$L13
+ 235 01a8 00000000 		nop
+ 236              	
+ 237              	$L11:
+  43:../risc_runtime/system.c ****     else
+  44:../risc_runtime/system.c ****         return XTI;
+ 238              		.loc 1 44 0
+ 239 01ac 4C00023C 		li	$2,4980736			# 0x4c0000
+ 240 01b0 404B4234 		ori	$2,$2,0x4b40
+ 241              	$L13:
+  45:../risc_runtime/system.c **** #elif (defined(TARGET_MCOM02))
+  46:../risc_runtime/system.c ****     if ((SEL_APLL & 0xff) >= 0x3D)
+  47:../risc_runtime/system.c ****         return XTI*0x3E;
+  48:../risc_runtime/system.c ****     else
+  49:../risc_runtime/system.c ****         return((XTI)*((SEL_APLL&0xFF) + 1));
+  50:../risc_runtime/system.c **** #elif (defined(TARGET_NVCOM02))
+  51:../risc_runtime/system.c ****     if (CR_PLL & 0xff)
+  52:../risc_runtime/system.c ****         return((XTI)*(CR_PLL&0xff));
+  53:../risc_runtime/system.c ****     else
+  54:../risc_runtime/system.c ****         return XTI;
+  55:../risc_runtime/system.c **** #else
+  56:../risc_runtime/system.c **** #error Unknown define for target device
+  57:../risc_runtime/system.c **** #endif
+  58:../risc_runtime/system.c **** }
+ 242              		.loc 1 58 0
+ 243 01b4 25E8C003 		move	$sp,$fp
+ 244              	$LCFI10 = .
+ 245              		.cfi_def_cfa_register 29
+ 246 01b8 0400BE8F 		lw	$fp,4($sp)
+ 247 01bc 0800BD27 		addiu	$sp,$sp,8
+ 248              	$LCFI11 = .
+ 249              		.cfi_restore 30
+ 250              		.cfi_def_cfa_offset 0
+ 251 01c0 0800E003 		j	$31
+ 252 01c4 00000000 		nop
+ 253              	
+ 254              		.set	macro
+ 255              		.set	reorder
+ 256              		.end	get_cpu_clock
+ 257              		.cfi_endproc
+ 258              	$LFE2:
+ 260              		.align	2
+ 261              		.globl	get_dsp_clock
+ 262              	$LFB3 = .
+  59:../risc_runtime/system.c **** 
+  60:../risc_runtime/system.c **** unsigned get_dsp_clock(void)
+  61:../risc_runtime/system.c **** {
+ 263              		.loc 1 61 0
+ 264              		.cfi_startproc
+ 265              		.set	nomips16
+ 266              		.ent	get_dsp_clock
+ 268              	get_dsp_clock:
+ 269              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 270              		.mask	0x40000000,-4
+ 271              		.fmask	0x00000000,0
+ 272              		.set	noreorder
+ 273              		.set	nomacro
+ 274 01c8 F8FFBD27 		addiu	$sp,$sp,-8
+ 275              	$LCFI12 = .
+ 276              		.cfi_def_cfa_offset 8
+ 277 01cc 0400BEAF 		sw	$fp,4($sp)
+ 278              		.cfi_offset 30, -4
+ 279 01d0 25F0A003 		move	$fp,$sp
+ 280              	$LCFI13 = .
+ 281              		.cfi_def_cfa_register 30
+  62:../risc_runtime/system.c **** #if (defined(TARGET_NVCOM02T)||defined(TARGET_MC30SF6))
+  63:../risc_runtime/system.c ****     return((XTI)*((CR_PLL&0x7f0000)>>16));
+ 282              		.loc 1 63 0
+ 283 01d4 2FB8023C 		li	$2,-1204879360			# 0xffffffffb82f0000
+ 284 01d8 00404234 		ori	$2,$2,0x4000
+ 285 01dc 0000438C 		lw	$3,0($2)
+ 286 01e0 7F00023C 		li	$2,8323072			# 0x7f0000
+ 287 01e4 24106200 		and	$2,$3,$2
+ 288 01e8 031C0200 		sra	$3,$2,16
+ 289 01ec 4C00023C 		li	$2,4980736			# 0x4c0000
+ 290 01f0 404B4234 		ori	$2,$2,0x4b40
+ 291 01f4 02106270 		mul	$2,$3,$2
+  64:../risc_runtime/system.c **** #else
+  65:../risc_runtime/system.c ****     return 0;
+  66:../risc_runtime/system.c **** #endif
+  67:../risc_runtime/system.c **** };
+ 292              		.loc 1 67 0
+ 293 01f8 25E8C003 		move	$sp,$fp
+ 294              	$LCFI14 = .
+ 295              		.cfi_def_cfa_register 29
+ 296 01fc 0400BE8F 		lw	$fp,4($sp)
+ 297 0200 0800BD27 		addiu	$sp,$sp,8
+ 298              	$LCFI15 = .
+ 299              		.cfi_restore 30
+ 300              		.cfi_def_cfa_offset 0
+ 301 0204 0800E003 		j	$31
+ 302 0208 00000000 		nop
+ 303              	
+ 304              		.set	macro
+ 305              		.set	reorder
+ 306              		.end	get_dsp_clock
+ 307              		.cfi_endproc
+ 308              	$LFE3:
+ 310              		.align	2
+ 311              		.globl	_get_cpu_id
+ 312              	$LFB4 = .
+  68:../risc_runtime/system.c **** 
+  69:../risc_runtime/system.c **** unsigned _get_cpu_id(void)
+  70:../risc_runtime/system.c **** {
+ 313              		.loc 1 70 0
+ 314              		.cfi_startproc
+ 315              		.set	nomips16
+ 316              		.ent	_get_cpu_id
+ 318              	_get_cpu_id:
+ 319              		.frame	$fp,8,$31		# vars= 0, regs= 1/0, args= 0, gp= 0
+ 320              		.mask	0x40000000,-4
+ 321              		.fmask	0x00000000,0
+ 322              		.set	noreorder
+ 323              		.set	nomacro
+ 324 020c F8FFBD27 		addiu	$sp,$sp,-8
+ 325              	$LCFI16 = .
+ 326              		.cfi_def_cfa_offset 8
+ 327 0210 0400BEAF 		sw	$fp,4($sp)
+ 328              		.cfi_offset 30, -4
+ 329 0214 25F0A003 		move	$fp,$sp
+ 330              	$LCFI17 = .
+ 331              		.cfi_def_cfa_register 30
+  71:../risc_runtime/system.c **** #if (defined(TARGET_MCT04)) 
+  72:../risc_runtime/system.c ****     return 0;
+  73:../risc_runtime/system.c **** #else
+  74:../risc_runtime/system.c ****     return 0;
+ 332              		.loc 1 74 0
+ 333 0218 25100000 		move	$2,$0
+  75:../risc_runtime/system.c **** #endif
+  76:../risc_runtime/system.c **** }
+ 334              		.loc 1 76 0
+ 335 021c 25E8C003 		move	$sp,$fp
+ 336              	$LCFI18 = .
+ 337              		.cfi_def_cfa_register 29
+ 338 0220 0400BE8F 		lw	$fp,4($sp)
+ 339 0224 0800BD27 		addiu	$sp,$sp,8
+ 340              	$LCFI19 = .
+ 341              		.cfi_restore 30
+ 342              		.cfi_def_cfa_offset 0
+ 343 0228 0800E003 		j	$31
+ 344 022c 00000000 		nop
+ 345              	
+ 346              		.set	macro
+ 347              		.set	reorder
+ 348              		.end	_get_cpu_id
+ 349              		.cfi_endproc
+ 350              	$LFE4:
+ 352              	$Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ../risc_runtime/system.c
+C:\Users\mamon\AppData\Local\Temp\ccHk9G9g.s:16     .text:0000000000000000 sys_kernel_pa_to_va
+C:\Users\mamon\AppData\Local\Temp\ccHk9G9g.s:90     .text:000000000000007c sys_kernel_va_to_pa
+C:\Users\mamon\AppData\Local\Temp\ccHk9G9g.s:186    .text:0000000000000130 get_cpu_clock
+C:\Users\mamon\AppData\Local\Temp\ccHk9G9g.s:268    .text:00000000000001c8 get_dsp_clock
+C:\Users\mamon\AppData\Local\Temp\ccHk9G9g.s:318    .text:000000000000020c _get_cpu_id
+
+NO UNDEFINED SYMBOLS
